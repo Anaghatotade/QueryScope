@@ -1,0 +1,22 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Relation Name": "orders",
+      "Startup Cost": 0.00,
+      "Total Cost": 125000.00,
+      "Plan Rows": 12000,
+      "Plan Width": 120,
+      "Actual Startup Time": 0.05,
+      "Actual Total Time": 4820.12,
+      "Actual Rows": 43,
+      "Actual Loops": 1,
+      "Filter": "((customer_id = 123) AND (created_at > '2026-01-01'::date))",
+      "Rows Removed by Filter": 8421950,
+      "Shared Hit Blocks": 100,
+      "Shared Read Blocks": 1200000
+    },
+    "Planning Time": 0.15,
+    "Execution Time": 4820.45
+  }
+]

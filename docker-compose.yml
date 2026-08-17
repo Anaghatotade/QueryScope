@@ -1,0 +1,71 @@
+services:
+  target-db:
+    image: postgres:16-alpine
+    container_name: querylens-target-db
+    environment:
+      POSTGRES_USER: querylens
+      POSTGRES_PASSWORD: querylens
+      POSTGRES_DB: shop
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./sample-db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./sample-db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U querylens -d shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  querylens-db:
+    image: postgres:16-alpine
+    container_name: querylens-metadata-db
+    environment:
+      POSTGRES_USER: querylens
+      POSTGRES_PASSWORD: querylens
+      POSTGRES_DB: querylens
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U querylens -d querylens"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: querylens-backend
+    depends_on:
+      target-db:
+        condition: service_healthy
+      querylens-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://querylens-db:5432/querylens
+      SPRING_DATASOURCE_USERNAME: querylens
+      SPRING_DATASOURCE_PASSWORD: querylens
+      QUERYLENS_TARGET_DB_URL: jdbc:postgresql://target-db:5432/shop
+      QUERYLENS_TARGET_DB_USERNAME: querylens
+      QUERYLENS_TARGET_DB_PASSWORD: querylens
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: querylens-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueryLens — SQL Performance Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">QL</div>
+        <div>
+          <h1>QueryLens</h1>
+          <p>SQL Performance Analyzer</p>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="analyze">Analyze Query</button>
+        <button class="nav-btn" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="leaderboard">Query Leaderboard</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="status-dot"></span> Target: PostgreSQL shop DB
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="view-analyze" class="view active">
+        <header class="page-header">
+          <div>
+            <h2>Analyze SQL Query</h2>
+            <p>Paste a read-only SELECT query. QueryLens runs EXPLAIN ANALYZE and generates evidence-backed recommendations.</p>
+          </div>
+        </header>
+
+        <div class="grid-2">
+          <div class="panel">
+            <label for="sql-input">SQL Query</label>
+            <textarea id="sql-input" spellcheck="false">SELECT *
+FROM orders
+WHERE customer_id = 123
+AND created_at > '2026-01-01';</textarea>
+            <div class="actions">
+              <button id="analyze-btn" class="btn primary">Run Analysis</button>
+              <button id="sample-btn" class="btn ghost">Load slow join sample</button>
+            </div>
+          </div>
+
+          <div class="panel metrics-panel" id="metrics-panel">
+            <h3>Performance Score</h3>
+            <div class="score-ring" id="score-ring">—</div>
+            <div class="metric-grid" id="metric-grid"></div>
+          </div>
+        </div>
+
+        <div id="results" class="results hidden">
+          <div class="panel">
+            <h3>Execution Plan</h3>
+            <pre id="plan-tree" class="plan-tree"></pre>
+          </div>
+          <div class="panel">
+            <h3>Recommendations</h3>
+            <div id="recommendations"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-dashboard" class="view">
+        <header class="page-header">
+          <h2>Database Health Overview</h2>
+        </header>
+        <div class="stats-grid" id="overview-stats"></div>
+        <div class="panel">
+          <h3>Recent Analysis Jobs</h3>
+          <div id="recent-jobs"></div>
+        </div>
+      </section>
+
+      <section id="view-leaderboard" class="view">
+        <header class="page-header">
+          <h2>Top Costly Query Patterns</h2>
+          <p>Ranked by total database time (frequency × latency).</p>
+        </header>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Query Pattern</th>
+                <th>Executions</th>
+                <th>Avg (ms)</th>
+                <th>Total (ms)</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Build
+backend/target/
+frontend/node_modules/
+.venv/
+data/
+
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local

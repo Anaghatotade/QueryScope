@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: querylens
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/querylens}
+    username: ${SPRING_DATASOURCE_USERNAME:querylens}
+    password: ${SPRING_DATASOURCE_PASSWORD:querylens}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+querylens:
+  target-db:
+    url: ${QUERYLENS_TARGET_DB_URL:jdbc:postgresql://localhost:5433/shop}
+    username: ${QUERYLENS_TARGET_DB_USERNAME:querylens}
+    password: ${QUERYLENS_TARGET_DB_PASSWORD:querylens}
+  analysis:
+    statement-timeout-ms: 30000
+    large-table-row-threshold: 100000
+    scan-amplification-threshold: 100
+    cardinality-error-threshold: 10
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.querylens: INFO
