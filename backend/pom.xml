@@ -14,7 +14,7 @@
     <groupId>com.querylens</groupId>
     <artifactId>querylens</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>QueryLens</name>
+    <name>QueryScope</name>
     <description>Automatic SQL Query Performance Analyzer and Optimizer</description>
 
     <properties>
