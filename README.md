@@ -1,10 +1,10 @@
-# QueryLens
+# QueryScope
 
 **Automatic SQL Query Performance Analyzer & Optimizer**
 
-QueryLens captures SQL workloads, analyzes PostgreSQL execution plans, identifies performance bottlenecks, and generates evidence-backed optimization recommendations — with optional verification experiments.
+QueryScope captures SQL workloads, analyzes PostgreSQL execution plans, identifies performance bottlenecks, and generates evidence-backed optimization recommendations — with optional verification experiments.
 
-> **Core question:** A developer knows their database is slow. Can QueryLens automatically explain why, prove what's causing it, and recommend the safest optimization?
+> **Core question:** A developer knows their database is slow. Can QueryScope automatically explain why, prove what's causing it, and recommend the safest optimization?
 
 ---
 
@@ -32,18 +32,54 @@ QueryLens captures SQL workloads, analyzes PostgreSQL execution plans, identifie
 
 ## Architecture
 
-```text
-Developer → REST API → Analysis Orchestrator
-                          ├── SQL Safety Guard
-                          ├── Query Normalizer / Fingerprinter
-                          ├── EXPLAIN Analyzer
-                          ├── Metadata Service (indexes, table stats)
-                          ├── Rule Engine
-                          ├── Performance Scorer
-                          └── Verification Service (BEGIN → CREATE INDEX → EXPLAIN → ROLLBACK)
+```mermaid
+flowchart LR
+    subgraph S1["1. Collection"]
+        direction TB
+        A1[Developer] --> A2[SQL query input] --> A3[Read-only safety guard] --> A4[Query collector]
+    end
 
-Results → QueryLens PostgreSQL (metadata) + Dashboard UI
-Target  → Sample shop PostgreSQL (500K orders, intentional missing indexes)
+    subgraph S2["2. Analysis"]
+        direction TB
+        B1[Query normalization] --> B2["Query fingerprinting (SHA-256)"] --> B3["EXPLAIN ANALYZE (PostgreSQL)"] --> B4[Execution plan parser]
+    end
+
+    subgraph S3["3. Diagnosis"]
+        direction TB
+        C1[Plan tree analyzer] --> C2[Sequential scan detector] --> C3[Index analyzer] --> C4[Join analyzer] --> C5[Cardinality analyzer] --> C6[Performance scoring engine]
+    end
+
+    subgraph S4["4. Recommendation"]
+        direction TB
+        D1["Rule engine (deterministic rules)"] --> D2[Evidence generator] --> D3["Ranked recommendations (severity/confidence)"]
+    end
+
+    subgraph S5["5. Verification"]
+        direction TB
+        E1[Baseline measurement] --> E2["CREATE INDEX (test)"] --> E3[Re-run EXPLAIN] --> E4[Before/after comparison] --> E5[Verified optimization report]
+    end
+
+    S1 --> S2 --> S3 --> S4 --> S5
+
+    DB1[("PostgreSQL target DB")]
+    DB2[("QueryScope metadata DB")]
+    DB3["Dashboard UI"]
+
+    S1 -.-> DB2
+    S3 -.-> DB2
+    S5 -.-> DB2
+    DB1 <--> DB2 <--> DB3
+
+    classDef collection fill:#0B1E33,stroke:#3B82F6,color:#E5E7EB
+    classDef analysis fill:#1E1533,stroke:#8B5CF6,color:#E5E7EB
+    classDef diagnosis fill:#2B1D08,stroke:#F59E0B,color:#E5E7EB
+    classDef recommend fill:#0C2115,stroke:#22C55E,color:#E5E7EB
+    classDef verify fill:#0A2320,stroke:#14B8A6,color:#E5E7EB
+    class A1,A2,A3,A4 collection
+    class B1,B2,B3,B4 analysis
+    class C1,C2,C3,C4,C5,C6 diagnosis
+    class D1,D2,D3 recommend
+    class E1,E2,E3,E4,E5 verify
 ```
 
 ---
@@ -51,7 +87,7 @@ Target  → Sample shop PostgreSQL (500K orders, intentional missing indexes)
 ## Quick Start (recommended — no Docker/Java needed)
 
 ```bash
-cd /Users/ankitkumar/QueryLens
+cd /path/to/QueryScope
 ./scripts/run_local.sh
 ```
 
@@ -77,7 +113,7 @@ This starts a local Python server with:
 | Dashboard | http://localhost:3000 |
 | API | http://localhost:8080 |
 | Target DB (shop) | localhost:5433 |
-| QueryLens metadata DB | localhost:5434 |
+| QueryScope metadata DB | localhost:5434 |
 
 If you see `failed to connect to docker API` → open **Docker Desktop**, wait until it says **Running**, then retry.
 
@@ -114,7 +150,7 @@ curl -X POST http://localhost:8080/api/recommendations/{id}/verify
 1. Start databases:
 
 ```bash
-docker compose up target-db querylens-db -d
+docker compose up target-db queryscope-db -d
 ```
 
 2. Run backend:
@@ -169,7 +205,7 @@ AND o.created_at > '2025-01-01';
 ## Project structure
 
 ```text
-QueryLens/
+QueryScope/
 ├── backend/           # Spring Boot API + analysis engine
 ├── frontend/          # Dashboard UI (static + nginx)
 ├── sample-db/         # Target database schema + seed data
