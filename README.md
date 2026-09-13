@@ -178,7 +178,3 @@ QueryScope/
 | `Unable to locate a Java Runtime` | Use `./scripts/run_local.sh` (no Java needed) |
 | Dashboard loads but analyze fails | Ensure server is running on port 3000 |
 | Port 3000 already in use | `lsof -ti:3000 \| xargs kill -9` then restart |
-
-## License
-
-MIT — see [LICENSE](LICENSE).
