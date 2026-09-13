@@ -8,7 +8,6 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> Based on the original [QueryLens](https://github.com/Ankitkr23/QueryLens) project by Ankitkr23, used with permission.
 
 ---
 
